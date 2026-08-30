@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <boost/noncopyable.hpp>
+
 #include <QObject>
 #include <QKeyEvent>
 #include <f1x/openauto/autoapp/Projection/IInputDevice.hpp>

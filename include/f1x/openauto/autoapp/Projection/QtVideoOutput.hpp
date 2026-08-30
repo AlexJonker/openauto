@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <boost/noncopyable.hpp>
+
 #include <QMediaPlayer>
 #include <QVideoWidget>
 #include <boost/noncopyable.hpp>

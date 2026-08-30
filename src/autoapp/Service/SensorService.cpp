@@ -29,8 +29,8 @@ namespace autoapp
 namespace service
 {
 
-SensorService::SensorService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger)
-    : strand_(ioService)
+SensorService::SensorService(boost::asio::io_context& ioService, aasdk::messenger::IMessenger::Pointer messenger)
+    : strand_(ioService.get_executor())
     , channel_(std::make_shared<aasdk::channel::sensor::SensorServiceChannel>(strand_, std::move(messenger)))
 {
 
@@ -38,7 +38,7 @@ SensorService::SensorService(boost::asio::io_service& ioService, aasdk::messenge
 
 void SensorService::start()
 {
-    strand_.dispatch([this, self = this->shared_from_this()]() {
+    strand_.execute([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[SensorService] start.";
         channel_->receive(this->shared_from_this());
     });
@@ -46,7 +46,7 @@ void SensorService::start()
 
 void SensorService::stop()
 {
-    strand_.dispatch([this, self = this->shared_from_this()]() {
+    strand_.execute([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[SensorService] stop.";
     });
 }

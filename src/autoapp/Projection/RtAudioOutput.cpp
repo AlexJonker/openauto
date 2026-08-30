@@ -49,18 +49,18 @@ bool RtAudioOutput::open()
         parameters.nChannels = channelCount_;
         parameters.firstChannel = 0;
 
-        try
-        {
-            RtAudio::StreamOptions streamOptions;
+        RtAudio::StreamOptions streamOptions;
             streamOptions.flags = RTAUDIO_MINIMIZE_LATENCY | RTAUDIO_SCHEDULE_REALTIME;
             uint32_t bufferFrames = sampleRate_ == 16000 ? 1024 : 2048; //according to the observation of audio packets
-            dac_->openStream(&parameters, nullptr, RTAUDIO_SINT16, sampleRate_, &bufferFrames, &RtAudioOutput::audioBufferReadHandler, static_cast<void*>(this), &streamOptions);
-            return audioBuffer_.open(QIODevice::ReadWrite);
-        }
-        catch(const RtAudioError& e)
-        {
-            OPENAUTO_LOG(error) << "[RtAudioOutput] Failed to open audio output, what: " << e.what();
-        }
+            RtAudioErrorType result = dac_->openStream(&parameters, nullptr, RTAUDIO_SINT16, sampleRate_, &bufferFrames, &RtAudioOutput::audioBufferReadHandler, static_cast<void*>(this), &streamOptions);
+            if(result != RTAUDIO_NO_ERROR)
+            {
+                OPENAUTO_LOG(error) << "[RtAudioOutput] Failed to open audio output, what: " << dac_->getErrorText();
+            }
+            else
+            {
+                return audioBuffer_.open(QIODevice::ReadWrite);
+            }
     }
     else
     {
@@ -81,13 +81,10 @@ void RtAudioOutput::start()
 
     if(dac_->isStreamOpen() && !dac_->isStreamRunning())
     {
-        try
+        RtAudioErrorType result = dac_->startStream();
+        if(result != RTAUDIO_NO_ERROR)
         {
-            dac_->startStream();
-        }
-        catch(const RtAudioError& e)
-        {
-            OPENAUTO_LOG(error) << "[RtAudioOutput] Failed to start audio output, what: " << e.what();
+            OPENAUTO_LOG(error) << "[RtAudioOutput] Failed to start audio output, what: " << dac_->getErrorText();
         }
     }
 }
@@ -128,13 +125,10 @@ void RtAudioOutput::doSuspend()
 {
     if(dac_->isStreamOpen() && dac_->isStreamRunning())
     {
-        try
+        RtAudioErrorType result = dac_->stopStream();
+        if(result != RTAUDIO_NO_ERROR)
         {
-            dac_->stopStream();
-        }
-        catch(const RtAudioError& e)
-        {
-            OPENAUTO_LOG(error) << "[RtAudioOutput] Failed to suspend audio output, what: " << e.what();
+            OPENAUTO_LOG(error) << "[RtAudioOutput] Failed to suspend audio output, what: " << dac_->getErrorText();
         }
     }
 }

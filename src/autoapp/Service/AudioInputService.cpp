@@ -29,8 +29,8 @@ namespace autoapp
 namespace service
 {
 
-AudioInputService::AudioInputService(boost::asio::io_service& ioService, aasdk::messenger::IMessenger::Pointer messenger, projection::IAudioInput::Pointer audioInput)
-    : strand_(ioService)
+AudioInputService::AudioInputService(boost::asio::io_context& ioService, aasdk::messenger::IMessenger::Pointer messenger, projection::IAudioInput::Pointer audioInput)
+    : strand_(ioService.get_executor())
     , channel_(std::make_shared<aasdk::channel::av::AVInputServiceChannel>(strand_, std::move(messenger)))
     , audioInput_(std::move(audioInput))
     , session_(0)
@@ -40,7 +40,7 @@ AudioInputService::AudioInputService(boost::asio::io_service& ioService, aasdk::
 
 void AudioInputService::start()
 {
-    strand_.dispatch([this, self = this->shared_from_this()]() {
+    strand_.execute([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[AudioInputService] start.";
         channel_->receive(this->shared_from_this());
     });
@@ -48,7 +48,7 @@ void AudioInputService::start()
 
 void AudioInputService::stop()
 {
-    strand_.dispatch([this, self = this->shared_from_this()]() {
+    strand_.execute([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[AudioInputService] stop.";
         audioInput_->stop();
     });
