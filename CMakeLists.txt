@@ -102,3 +102,5 @@ target_link_libraries(btservice
                         ${Qt5MultimediaWidgets_LIBRARIES}
                         ${PROTOBUF_LIBRARIES}
                         ${AASDK_PROTO_LIBRARIES})
+
+install(TARGETS autoapp RUNTIME DESTINATION bin)
