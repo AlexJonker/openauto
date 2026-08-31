@@ -33,6 +33,7 @@ find_package(Qt5 COMPONENTS Multimedia MultimediaWidgets Bluetooth)
 find_package(Protobuf REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(rtaudio REQUIRED)
+find_package(absl REQUIRED)
 
 if(WIN32)
     set(WINSOCK2_LIBRARIES "ws2_32")
@@ -84,7 +85,10 @@ target_link_libraries(autoapp
                         ${WINSOCK2_LIBRARIES}
                         ${RTAUDIO_LIBRARIES}
                         ${AASDK_PROTO_LIBRARIES}
-                        ${AASDK_LIBRARIES})
+                        ${AASDK_LIBRARIES}
+                        absl::log_internal_check_op
+                        absl::status
+                        absl::strings)
 
 set(btservice_sources_directory ${sources_directory}/btservice)
 set(btservice_include_directory ${include_directory}/f1x/openauto/btservice)
